@@ -1011,16 +1011,37 @@ static int MQTTClient_connectURI(MQTTClient handle, MQTTClient_connectOptions* o
 
 	if (m->c->will)
 	{
-		free(m->c->will->msg);
+		free(m->c->will->payload);
 		free(m->c->will->topic);
 		free(m->c->will);
 		m->c->will = NULL;
 	}
 
-	if (options->will && options->will->struct_version == 0)
+	if (options->will && (options->will->struct_version == 0 || options->will->struct_version == 1))
 	{
+		const void* source = NULL;
+		
 		m->c->will = malloc(sizeof(willMessages));
-		m->c->will->msg = MQTTStrdup(options->will->message);
+		if (options->will->message || (options->will->struct_version == 1 && options->will->payload.data))
+		{
+			if (options->will->struct_version == 1 && options->will->payload.data)
+			{
+				m->c->will->payloadlen = options->will->payload.len;
+				source = options->will->payload.data;
+			}
+			else
+			{
+				m->c->will->payloadlen = strlen(options->will->message);
+				source = (void*)options->will->message;
+			}
+			m->c->will->payload = malloc(m->c->will->payloadlen);
+			memcpy(m->c->will->payload, source, m->c->will->payloadlen);
+		}
+		else 
+		{
+			m->c->will->payload = NULL;
+			m->c->will->payloadlen = 0;
+		}
 		m->c->will->qos = options->will->qos;
 		m->c->will->retained = options->will->retained;
 		m->c->will->topic = MQTTStrdup(options->will->topicName);

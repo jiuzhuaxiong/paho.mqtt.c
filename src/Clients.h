@@ -107,7 +107,8 @@ BE*/
 typedef struct
 {
 	char *topic;
-	char *msg;
+	int payloadlen;
+	char *payload;
 	int retained;
 	int qos;
 } willMessages;

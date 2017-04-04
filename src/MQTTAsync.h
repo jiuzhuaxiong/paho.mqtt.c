@@ -17,6 +17,7 @@
  *    Ian Craggs - MQTT 3.1.1 support
  *    Ian Craggs - fix for bug 444103 - success/failure callbacks not invoked
  *    Ian Craggs - automatic reconnect and offline buffering (send while disconnected)
+ *    Ian Craggs - binary will message
  *******************************************************************************/
 
 /********************************************************************/
@@ -583,6 +584,12 @@ typedef struct
       * MQTTAsync_message.qos and @ref qos).
       */
 	int qos;
+  /** The LWT payload in binary form. This is only checked and used if the message option is NULL */
+	struct
+	{
+  	int len;            /**< binary payload length */
+		const void* data;  /**< binary payload data */
+	} payload;
 } MQTTAsync_willOptions;
 
 #define MQTTAsync_willOptions_initializer { {'M', 'Q', 'T', 'W'}, 0, NULL, NULL, 0, 0 }

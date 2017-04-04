@@ -53,7 +53,7 @@ int MQTTPacket_send_connect(Clients* client, int MQTTVersion)
 
 	len = ((MQTTVersion == 3) ? 12 : 10) + (int)strlen(client->clientID)+2;
 	if (client->will)
-		len += (int)strlen(client->will->topic)+2 + (int)strlen(client->will->msg)+2;
+		len += (int)strlen(client->will->topic)+2 + client->will->payloadlen+2;
 	if (client->username)
 		len += (int)strlen(client->username)+2;
 	if (client->password)
@@ -93,7 +93,7 @@ int MQTTPacket_send_connect(Clients* client, int MQTTVersion)
 	if (client->will)
 	{
 		writeUTF(&ptr, client->will->topic);
-		writeUTF(&ptr, client->will->msg);
+		writeData(&ptr, client->will->payload, client->will->payloadlen);
 	}
 	if (client->username)
 		writeUTF(&ptr, client->username);
